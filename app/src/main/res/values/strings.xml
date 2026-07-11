@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Brainspresso</string>
+    <string name="alarm_ringing_title">Brainspresso alarm</string>
+    <string name="alarm_ringing_default_label">Wake up!</string>
+</resources>
