@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.brainspresso.core.puzzle.TapPatternPuzzle
 import kotlinx.coroutines.delay
 
-private enum class Phase { MEMORIZE, RECALL }
+private enum class TapPhase { MEMORIZE, RECALL }
 
 @Composable
 fun TapPatternPuzzleView(
@@ -36,21 +36,21 @@ fun TapPatternPuzzleView(
     onSolved: () -> Unit,
     onFailed: () -> Unit,
 ) {
-    var phase by remember(puzzle) { mutableStateOf(Phase.MEMORIZE) }
+    var phase by remember(puzzle) { mutableStateOf(TapPhase.MEMORIZE) }
     var tapped by remember(puzzle) { mutableStateOf(setOf<Int>()) }
 
     LaunchedEffect(puzzle) {
-        phase = Phase.MEMORIZE
+        phase = TapPhase.MEMORIZE
         tapped = emptySet()
         delay(1400 + puzzle.pattern.size * 250L)
-        phase = Phase.RECALL
+        phase = TapPhase.RECALL
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = when (phase) {
-                Phase.MEMORIZE -> "Memorize the highlighted cells"
-                Phase.RECALL -> "Tap the cells you memorized"
+                TapPhase.MEMORIZE -> "Memorize the highlighted cells"
+                TapPhase.RECALL -> "Tap the cells you memorized"
             },
             style = MaterialTheme.typography.titleMedium,
         )
@@ -65,11 +65,11 @@ fun TapPatternPuzzleView(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(puzzle.cellCount) { cell ->
-                val showHighlight = phase == Phase.MEMORIZE && cell in puzzle.pattern
-                val showTapped = phase == Phase.RECALL && cell in tapped
+                val showHighlight = phase == TapPhase.MEMORIZE && cell in puzzle.pattern
+                val showTapped = phase == TapPhase.RECALL && cell in tapped
                 GridCellView(
                     highlighted = showHighlight || showTapped,
-                    enabled = phase == Phase.RECALL && cell !in tapped,
+                    enabled = phase == TapPhase.RECALL && cell !in tapped,
                     onClick = {
                         if (puzzle.isValidTap(cell)) {
                             val next = tapped + cell

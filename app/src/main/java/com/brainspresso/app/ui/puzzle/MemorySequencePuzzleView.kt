@@ -40,7 +40,7 @@ private val padPalette = listOf(
     Color(0xFF5B4B8A), // plum
 )
 
-private enum class Phase { WATCH, REPEAT }
+private enum class MemoryPhase { WATCH, REPEAT }
 
 @Composable
 fun MemorySequencePuzzleView(
@@ -48,12 +48,12 @@ fun MemorySequencePuzzleView(
     onSolved: () -> Unit,
     onFailed: () -> Unit,
 ) {
-    var phase by remember(puzzle) { mutableStateOf(Phase.WATCH) }
+    var phase by remember(puzzle) { mutableStateOf(MemoryPhase.WATCH) }
     var highlightedIndex by remember(puzzle) { mutableStateOf(-1) }
     var attempt by remember(puzzle) { mutableStateOf(listOf<Int>()) }
 
     LaunchedEffect(puzzle) {
-        phase = Phase.WATCH
+        phase = MemoryPhase.WATCH
         attempt = emptyList()
         delay(500)
         for (step in puzzle.sequence) {
@@ -62,7 +62,7 @@ fun MemorySequencePuzzleView(
             highlightedIndex = -1
             delay(200)
         }
-        phase = Phase.REPEAT
+        phase = MemoryPhase.REPEAT
     }
 
     Column(
@@ -70,8 +70,8 @@ fun MemorySequencePuzzleView(
     ) {
         Text(
             text = when (phase) {
-                Phase.WATCH -> "Watch closely…"
-                Phase.REPEAT -> "Now repeat it"
+                MemoryPhase.WATCH -> "Watch closely…"
+                MemoryPhase.REPEAT -> "Now repeat it"
             },
             style = MaterialTheme.typography.titleMedium,
         )
@@ -88,7 +88,7 @@ fun MemorySequencePuzzleView(
                             PadCell(
                                 color = padPalette[index % padPalette.size],
                                 isHighlighted = index == highlightedIndex,
-                                enabled = phase == Phase.REPEAT,
+                                enabled = phase == MemoryPhase.REPEAT,
                                 onClick = {
                                     val next = attempt + index
                                     if (puzzle.isPrefixCorrect(next)) {
