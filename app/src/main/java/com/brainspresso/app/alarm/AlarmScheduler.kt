@@ -1,5 +1,6 @@
 package com.brainspresso.app.alarm
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
@@ -17,6 +18,9 @@ class AlarmScheduler(private val context: Context) {
 
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+    // Lint's ScheduleExactAlarm check flags setAlarmClock() too, but per Android's own docs
+    // that API is exempt from the SCHEDULE_EXACT_ALARM permission gate for alarm-clock apps.
+    @SuppressLint("ScheduleExactAlarm")
     fun schedule(alarm: AlarmEntity) {
         val triggerAt = AlarmTimeCalculator.nextTrigger(
             hour = alarm.hour,
