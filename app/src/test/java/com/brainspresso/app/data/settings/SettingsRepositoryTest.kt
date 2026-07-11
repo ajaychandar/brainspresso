@@ -1,9 +1,15 @@
 package com.brainspresso.app.data.settings
 
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.core.app.ApplicationProvider
 import com.brainspresso.core.puzzle.Difficulty
 import com.brainspresso.core.puzzle.PuzzleSettings
 import com.brainspresso.core.puzzle.PuzzleType
+import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -11,11 +17,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
+/**
+ * Each test gets its own uniquely-named DataStore file (rather than the app's fixed
+ * `brainspresso_settings` name) so runs don't leak state into one another via a shared file
+ * on disk within the same Robolectric process.
+ */
 @RunWith(RobolectricTestRunner::class)
 class SettingsRepositoryTest {
 
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-    private val repository = SettingsRepository(context)
+    private val dataStore = PreferenceDataStoreFactory.create(
+        scope = CoroutineScope(Dispatchers.Unconfined + Job()),
+        produceFile = { context.preferencesDataStoreFile("test_settings_${UUID.randomUUID()}") },
+    )
+    private val repository = SettingsRepository(dataStore)
 
     @Test
     fun `defaults match PuzzleSettings defaults`() = runTest {
