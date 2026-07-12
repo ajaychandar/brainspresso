@@ -31,6 +31,12 @@ class AlarmRingingService : LifecycleService() {
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
 
+    // If a second alarm fires while the first is still ringing, onStartCommand runs again and
+    // launches a second coroutine. Without this guard, whichever DB lookup finishes last wins,
+    // which could let a stale (first) coroutine overwrite the second alarm's sound/notification
+    // after the fact. Only the most recently requested alarm id is allowed to take effect.
+    private var activeAlarmId: Long = -1L
+
     override fun onCreate() {
         super.onCreate()
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -49,13 +55,15 @@ class AlarmRingingService : LifecycleService() {
             return START_NOT_STICKY
         }
 
+        activeAlarmId = alarmId
+
         // Show the foreground notification immediately; details are filled in once loaded.
         startForegroundWith(alarmId = alarmId, label = getString(R.string.alarm_ringing_default_label))
 
         lifecycleScope.launch {
             val app = application as BrainspressoApp
             val alarm = app.alarmRepository.getById(alarmId)
-            if (alarm != null) {
+            if (alarm != null && alarmId == activeAlarmId) {
                 startForegroundWith(alarmId = alarmId, label = alarm.label.ifBlank { getString(R.string.alarm_ringing_default_label) })
                 startRinging(alarm)
             }

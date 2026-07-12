@@ -3,6 +3,7 @@ package com.brainspresso.app.alarm
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.brainspresso.app.BrainspressoApp
 import com.brainspresso.app.service.AlarmRingingService
@@ -23,10 +24,14 @@ class AlarmReceiver : BroadcastReceiver() {
             try {
                 val alarm = app.alarmRepository.getById(alarmId)
                 if (alarm != null && alarm.enabled) {
-                    ContextCompat.startForegroundService(
-                        context,
-                        AlarmRingingService.buildIntent(context, alarm.id),
-                    )
+                    runCatching {
+                        ContextCompat.startForegroundService(
+                            context,
+                            AlarmRingingService.buildIntent(context, alarm.id),
+                        )
+                    }.onFailure { e ->
+                        Log.e("AlarmReceiver", "Failed to start ringing service for alarm ${alarm.id}", e)
+                    }
                     if (alarm.isRepeating) {
                         app.alarmScheduler.schedule(alarm)
                     } else {

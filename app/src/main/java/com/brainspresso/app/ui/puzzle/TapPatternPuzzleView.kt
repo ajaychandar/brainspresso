@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -56,11 +57,15 @@ fun TapPatternPuzzleView(
         )
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Sized as a fraction of available width (capped so it doesn't grow huge on tablets)
+        // rather than a fixed per-cell dp, so HARD difficulty's 5x5 grid never overflows a
+        // narrow phone screen the way gridSize * 64.dp could.
         LazyVerticalGrid(
             columns = GridCells.Fixed(puzzle.gridSize),
             modifier = Modifier
-                .width((puzzle.gridSize * 64).dp)
-                .height((puzzle.gridSize * 64).dp),
+                .fillMaxWidth(0.85f)
+                .widthIn(max = 340.dp)
+                .aspectRatio(1f),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
