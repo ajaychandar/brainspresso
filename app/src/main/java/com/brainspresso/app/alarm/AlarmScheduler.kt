@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.brainspresso.app.data.db.AlarmEntity
 import com.brainspresso.app.ui.MainActivity
 import com.brainspresso.core.alarm.AlarmTimeCalculator
@@ -43,10 +44,18 @@ class AlarmScheduler(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        alarmManager.setAlarmClock(
-            AlarmManager.AlarmClockInfo(triggerAt, showIntent),
-            firePendingIntent,
-        )
+        // A scheduling failure (e.g. a SecurityException if some OEM enforces the exact-alarm
+        // permission more strictly than stock Android's documented setAlarmClock exemption)
+        // must never crash the app -- the alarm is already saved in the database at this point,
+        // and the user can still see and re-save it. Fail safe, not fatal.
+        runCatching {
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(triggerAt, showIntent),
+                firePendingIntent,
+            )
+        }.onFailure { e ->
+            Log.e(TAG, "Failed to schedule alarm ${alarm.id}", e)
+        }
     }
 
     fun cancel(alarmId: Long) {
@@ -56,7 +65,15 @@ class AlarmScheduler(private val context: Context) {
             AlarmReceiver.buildIntent(context, alarmId),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
-        alarmManager.cancel(pendingIntent)
-        pendingIntent.cancel()
+        runCatching {
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
+        }.onFailure { e ->
+            Log.e(TAG, "Failed to cancel alarm $alarmId", e)
+        }
+    }
+
+    private companion object {
+        const val TAG = "AlarmScheduler"
     }
 }

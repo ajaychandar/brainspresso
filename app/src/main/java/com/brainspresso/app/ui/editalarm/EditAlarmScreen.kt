@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -137,6 +138,7 @@ fun EditAlarmScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
                         .padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
@@ -144,7 +146,9 @@ fun EditAlarmScreen(
                         FilterChip(
                             selected = day in state.repeatDays,
                             onClick = { viewModel.toggleDay(day) },
-                            label = { Text(day.name.take(1)) },
+                            // Two letters so every day is visually distinct -- a single
+                            // letter collides for Tue/Thu and, notably, Sat/Sun.
+                            label = { Text(day.name.take(2).lowercase().replaceFirstChar(Char::uppercase)) },
                         )
                     }
                 }

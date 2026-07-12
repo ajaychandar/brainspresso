@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
@@ -63,7 +65,12 @@ fun SettingsScreen(
             )
         },
     ) { padding ->
-        Column(modifier = Modifier.padding(padding).padding(20.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+        ) {
             SectionTitle("Puzzle types")
             Text(
                 "At least one must stay enabled.",
