@@ -35,8 +35,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.brainspresso.app.BuildConfig
 import com.brainspresso.core.puzzle.Difficulty
 import com.brainspresso.core.puzzle.PuzzleSettings
 import com.brainspresso.core.puzzle.PuzzleType
@@ -226,6 +228,37 @@ fun SettingsScreen(
                     ) { Icon(Icons.Filled.Add, contentDescription = "Increase") }
                 }
             }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
+
+            SectionTitle("About")
+            Text(
+                "Brainspresso ${BuildConfig.VERSION_NAME}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "Created by Ajay Chandar",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp),
+            )
+            Text(
+                "Runs entirely on this device -- no network access, no accounts, no data " +
+                    "collection.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 12.dp),
+            )
+            Text(
+                "This app is provided \"as is,\" without warranty of any kind. It is not a " +
+                    "substitute for a backup alarm when something truly can't be missed " +
+                    "(medication, flights, exams). The developer is not liable for missed " +
+                    "alarms or any damages arising from its use.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp, bottom = 12.dp),
+            )
         }
     }
 }
