@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -32,7 +34,7 @@ android {
 
     // Release key comes from a gitignored keystore.properties (see keystore.properties.example).
     // Without it the release build is simply unsigned, so CI and fresh clones still work.
-    val keystoreProps = java.util.Properties().apply {
+    val keystoreProps = Properties().apply {
         val file = rootProject.file("keystore.properties")
         if (file.exists()) file.inputStream().use { load(it) }
     }
