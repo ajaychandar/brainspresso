@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
 import androidx.compose.material.icons.filled.DirectionsWalk
@@ -144,8 +144,8 @@ private fun StreakDots(solved: Int, required: Int) {
             val filled = index < solved
             Box(
                 modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
+                    .size(14.dp)
+                    .clip(RoundedCornerShape(3.dp))
                     .background(
                         if (filled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
                     ),

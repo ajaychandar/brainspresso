@@ -9,12 +9,13 @@ import androidx.compose.ui.unit.sp
 val BrainspressoTypography = Typography(
     displaySmall = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 40.sp,
+        fontWeight = FontWeight.Black,
+        fontSize = 42.sp,
+        letterSpacing = 0.5.sp,
     ),
     headlineSmall = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 24.sp,
     ),
     titleLarge = TextStyle(

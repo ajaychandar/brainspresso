@@ -2,19 +2,22 @@ package com.brainspresso.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Warm coffee palette
-val Espresso = Color(0xFF6B4226)
-val EspressoDark = Color(0xFF4A2C18)
-val Caramel = Color(0xFFD97F4C)
-val CaramelLight = Color(0xFFF0B382)
-val Latte = Color(0xFFC9A876)
-val CreamBackground = Color(0xFFFBF3EA)
-val CreamSurface = Color(0xFFFFF8F0)
-val CocoaBrownText = Color(0xFF2E1F16)
-val WarmError = Color(0xFFB3261E)
-val WarmErrorDark = Color(0xFFFFB4AB)
+// Retro alarm clock palette: cream + red/orange + mustard, with a strong black outline
+// (the outline color) instead of soft Material elevation shadows.
+val RetroRed = Color(0xFFE2402A)
+val RetroRedBright = Color(0xFFFF6B4D)
+val RetroAmber = Color(0xFFF2A541)
+val RetroTeal = Color(0xFF1F6F6B)
+val RetroTealBright = Color(0xFF4FC3BE)
 
-val CoffeeBean = Color(0xFF241812)
-val CoffeeBeanSurface = Color(0xFF2E211A)
-val CreamOnDark = Color(0xFFF0E4D8)
-val CaramelDark = Color(0xFFE3A063)
+val RetroCream = Color(0xFFF7E7CE)
+val RetroCreamSurface = Color(0xFFFFF3DE)
+val RetroMustardSurface = Color(0xFFF4D9A0)
+val RetroInk = Color(0xFF1C1613)
+val RetroMaroon = Color(0xFF8B1E1E)
+
+val RetroCharcoal = Color(0xFF1C1613)
+val RetroCharcoalSurface = Color(0xFF2A2119)
+val RetroBrownSurface = Color(0xFF3A2E22)
+val RetroCreamText = Color(0xFFF7E7CE)
+val RetroErrorBright = Color(0xFFFF6E63)

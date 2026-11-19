@@ -6,6 +6,8 @@ import android.media.RingtoneManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -170,6 +172,8 @@ fun EditAlarmScreen(
                     ringtoneLauncher.launch(intent)
                 },
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -204,9 +208,11 @@ fun EditAlarmScreen(
 
             Button(
                 onClick = viewModel::save,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(2.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small),
             ) {
-                Text("Save alarm")
+                Text("Save alarm", fontWeight = FontWeight.Bold)
             }
         }
     }
