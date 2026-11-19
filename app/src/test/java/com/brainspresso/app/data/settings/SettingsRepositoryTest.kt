@@ -65,4 +65,28 @@ class SettingsRepositoryTest {
         repository.setRequiredStreak(3)
         assertEquals(3, repository.settings.first().requiredStreak)
     }
+
+    @Test
+    fun `setRequireWalkToStop round-trips`() = runTest {
+        repository.setRequireWalkToStop(true)
+        assertEquals(true, repository.settings.first().requireWalkToStop)
+
+        repository.setRequireWalkToStop(false)
+        assertEquals(false, repository.settings.first().requireWalkToStop)
+    }
+
+    @Test
+    fun `setWalkStepsRequired clamps to the valid range`() = runTest {
+        repository.setWalkStepsRequired(999)
+        assertEquals(PuzzleSettings.MAX_WALK_STEPS, repository.settings.first().walkStepsRequired)
+
+        repository.setWalkStepsRequired(0)
+        assertEquals(PuzzleSettings.MIN_WALK_STEPS, repository.settings.first().walkStepsRequired)
+    }
+
+    @Test
+    fun `setWalkStepsRequired persists an in-range value exactly`() = runTest {
+        repository.setWalkStepsRequired(20)
+        assertEquals(20, repository.settings.first().walkStepsRequired)
+    }
 }

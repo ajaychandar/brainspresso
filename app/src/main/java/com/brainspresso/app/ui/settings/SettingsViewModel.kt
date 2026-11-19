@@ -37,6 +37,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch { app.settingsRepository.setRequiredStreak(streak) }
     }
 
+    fun setRequireWalkToStop(enabled: Boolean) {
+        viewModelScope.launch { app.settingsRepository.setRequireWalkToStop(enabled) }
+    }
+
+    fun setWalkStepsRequired(steps: Int) {
+        viewModelScope.launch { app.settingsRepository.setWalkStepsRequired(steps) }
+    }
+
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T = SettingsViewModel(application) as T

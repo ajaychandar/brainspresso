@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,35 +61,39 @@ fun PuzzleScreen(
             }
 
             Text(
-                text = "Solve the puzzle to stop the alarm",
+                text = if (state.isWalking) "Walk to fully stop the alarm" else "Solve the puzzle to stop the alarm",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
             )
 
-            if (state.required > 1) {
+            if (state.required > 1 && !state.isWalking) {
                 StreakDots(solved = state.solvedCount, required = state.required)
             }
 
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                AnimatedContent(
-                    targetState = state.puzzle,
-                    transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(120)) },
-                    label = "puzzle-content",
-                ) { puzzle ->
-                    when (puzzle) {
-                        is MathPuzzle -> MathPuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
-                        is MemorySequencePuzzle -> MemorySequencePuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
-                        is TapPatternPuzzle -> TapPatternPuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
-                        null -> Text(
-                            text = "Loading puzzle…",
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
+                if (state.isWalking) {
+                    WalkToStopView(stepsWalked = state.stepsWalked, stepsRequired = state.stepsRequired)
+                } else {
+                    AnimatedContent(
+                        targetState = state.puzzle,
+                        transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(120)) },
+                        label = "puzzle-content",
+                    ) { puzzle ->
+                        when (puzzle) {
+                            is MathPuzzle -> MathPuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
+                            is MemorySequencePuzzle -> MemorySequencePuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
+                            is TapPatternPuzzle -> TapPatternPuzzleView(puzzle = puzzle, onSolved = onSolved, onFailed = onFailed)
+                            null -> Text(
+                                text = "Loading puzzle…",
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
                     }
                 }
             }
 
-            if (state.justFailed) {
+            if (state.justFailed && !state.isWalking) {
                 Text(
                     text = "Not quite — here's a fresh one.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -95,6 +101,36 @@ fun PuzzleScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun WalkToStopView(stepsWalked: Int, stepsRequired: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            imageVector = Icons.Filled.DirectionsWalk,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp),
+        )
+        Text(
+            text = "$stepsWalked / $stepsRequired steps",
+            style = MaterialTheme.typography.displaySmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 16.dp),
+        )
+        Text(
+            text = "Keep the phone with you and keep moving.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+        LinearProgressIndicator(
+            progress = { (stepsWalked.toFloat() / stepsRequired.toFloat()).coerceIn(0f, 1f) },
+            modifier = Modifier
+                .padding(top = 20.dp)
+                .fillMaxWidth(0.7f),
+        )
     }
 }
 

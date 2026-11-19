@@ -1,5 +1,10 @@
 package com.brainspresso.app.ui.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -27,11 +33,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.brainspresso.core.puzzle.Difficulty
 import com.brainspresso.core.puzzle.PuzzleSettings
 import com.brainspresso.core.puzzle.PuzzleType
+
+private const val WALK_STEPS_INCREMENT = 5
 
 private fun PuzzleType.displayName() = when (this) {
     PuzzleType.MATH -> "Math"
@@ -52,6 +62,30 @@ fun SettingsScreen(
     onBack: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsState()
+    val context = LocalContext.current
+
+    val activityRecognitionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) viewModel.setRequireWalkToStop(true)
+    }
+
+    fun onToggleRequireWalk(enabled: Boolean) {
+        if (!enabled) {
+            viewModel.setRequireWalkToStop(false)
+            return
+        }
+        val needsRuntimePermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        val alreadyGranted = !needsRuntimePermission || ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACTIVITY_RECOGNITION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (alreadyGranted) {
+            viewModel.setRequireWalkToStop(true)
+        } else {
+            activityRecognitionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -144,6 +178,53 @@ fun SettingsScreen(
                     onClick = { viewModel.setRequiredStreak(settings.requiredStreak + 1) },
                     enabled = settings.requiredStreak < PuzzleSettings.MAX_STREAK,
                 ) { Icon(Icons.Filled.Add, contentDescription = "Increase") }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 20.dp))
+
+            SectionTitle("Walk to stop the alarm")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "After solving, you must also walk a few steps -- phone in hand -- " +
+                        "before the alarm actually stops.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = settings.requireWalkToStop,
+                    onCheckedChange = ::onToggleRequireWalk,
+                )
+            }
+
+            if (settings.requireWalkToStop) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(
+                        onClick = { viewModel.setWalkStepsRequired(settings.walkStepsRequired - WALK_STEPS_INCREMENT) },
+                        enabled = settings.walkStepsRequired > PuzzleSettings.MIN_WALK_STEPS,
+                    ) { Icon(Icons.Filled.Remove, contentDescription = "Decrease") }
+
+                    Text(
+                        text = "${settings.walkStepsRequired} steps",
+                        style = MaterialTheme.typography.displaySmall,
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                    )
+
+                    IconButton(
+                        onClick = { viewModel.setWalkStepsRequired(settings.walkStepsRequired + WALK_STEPS_INCREMENT) },
+                        enabled = settings.walkStepsRequired < PuzzleSettings.MAX_WALK_STEPS,
+                    ) { Icon(Icons.Filled.Add, contentDescription = "Increase") }
+                }
             }
         }
     }

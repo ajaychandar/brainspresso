@@ -15,6 +15,19 @@ class PuzzleSettingsTest {
         assertFailsWith<IllegalArgumentException> { PuzzleSettings(requiredStreak = 0) }
         assertFailsWith<IllegalArgumentException> { PuzzleSettings(requiredStreak = 6) }
     }
+
+    @Test
+    fun `walkStepsRequired must be between 5 and 50`() {
+        PuzzleSettings(walkStepsRequired = 5)
+        PuzzleSettings(walkStepsRequired = 50)
+        assertFailsWith<IllegalArgumentException> { PuzzleSettings(walkStepsRequired = 4) }
+        assertFailsWith<IllegalArgumentException> { PuzzleSettings(walkStepsRequired = 51) }
+    }
+
+    @Test
+    fun `requireWalkToStop defaults to false`() {
+        assertFalse(PuzzleSettings().requireWalkToStop)
+    }
 }
 
 class PuzzleChainProgressTest {
@@ -70,5 +83,49 @@ class PuzzleChainProgressTest {
         progress.recordSolved()
         progress.recordSolved()
         assertTrue(progress.recordSolved())
+    }
+}
+
+class WalkProgressTest {
+
+    @Test
+    fun `completes once accumulated steps reach the requirement`() {
+        val progress = WalkProgress(required = 15)
+        assertFalse(progress.isComplete)
+        assertEquals(15, progress.remaining)
+
+        assertFalse(progress.recordSteps(10))
+        assertEquals(5, progress.remaining)
+
+        assertTrue(progress.recordSteps(5))
+        assertEquals(0, progress.remaining)
+        assertTrue(progress.isComplete)
+    }
+
+    @Test
+    fun `overshooting the requirement in one burst does not overshoot the counter`() {
+        val progress = WalkProgress(required = 10)
+        assertTrue(progress.recordSteps(100))
+        assertEquals(10, progress.stepsWalked)
+    }
+
+    @Test
+    fun `recording past completion stays capped at the requirement`() {
+        val progress = WalkProgress(required = 5)
+        progress.recordSteps(5)
+        progress.recordSteps(3)
+        assertEquals(5, progress.stepsWalked)
+    }
+
+    @Test
+    fun `rejects a negative step count`() {
+        val progress = WalkProgress(required = 10)
+        assertFailsWith<IllegalArgumentException> { progress.recordSteps(-1) }
+    }
+
+    @Test
+    fun `rejects out-of-range required steps`() {
+        assertFailsWith<IllegalArgumentException> { WalkProgress(required = 4) }
+        assertFailsWith<IllegalArgumentException> { WalkProgress(required = 51) }
     }
 }

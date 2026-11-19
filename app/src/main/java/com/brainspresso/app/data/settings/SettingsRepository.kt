@@ -3,6 +3,7 @@ package com.brainspresso.app.data.settings
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -25,6 +26,8 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
         val ENABLED_TYPES = stringSetPreferencesKey("enabled_puzzle_types")
         val DIFFICULTY = stringPreferencesKey("difficulty")
         val REQUIRED_STREAK = intPreferencesKey("required_streak")
+        val REQUIRE_WALK_TO_STOP = booleanPreferencesKey("require_walk_to_stop")
+        val WALK_STEPS_REQUIRED = intPreferencesKey("walk_steps_required")
     }
 
     val settings: Flow<PuzzleSettings> = dataStore.data.map { prefs ->
@@ -39,7 +42,16 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
             ?: defaults.difficulty
         val requiredStreak = (prefs[Keys.REQUIRED_STREAK] ?: defaults.requiredStreak)
             .coerceIn(PuzzleSettings.MIN_STREAK, PuzzleSettings.MAX_STREAK)
-        PuzzleSettings(enabledTypes = enabledTypes, difficulty = difficulty, requiredStreak = requiredStreak)
+        val requireWalkToStop = prefs[Keys.REQUIRE_WALK_TO_STOP] ?: defaults.requireWalkToStop
+        val walkStepsRequired = (prefs[Keys.WALK_STEPS_REQUIRED] ?: defaults.walkStepsRequired)
+            .coerceIn(PuzzleSettings.MIN_WALK_STEPS, PuzzleSettings.MAX_WALK_STEPS)
+        PuzzleSettings(
+            enabledTypes = enabledTypes,
+            difficulty = difficulty,
+            requiredStreak = requiredStreak,
+            requireWalkToStop = requireWalkToStop,
+            walkStepsRequired = walkStepsRequired,
+        )
     }
 
     suspend fun setEnabledTypes(types: Set<PuzzleType>) {
@@ -53,5 +65,14 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setRequiredStreak(streak: Int) {
         val clamped = streak.coerceIn(PuzzleSettings.MIN_STREAK, PuzzleSettings.MAX_STREAK)
         dataStore.edit { it[Keys.REQUIRED_STREAK] = clamped }
+    }
+
+    suspend fun setRequireWalkToStop(enabled: Boolean) {
+        dataStore.edit { it[Keys.REQUIRE_WALK_TO_STOP] = enabled }
+    }
+
+    suspend fun setWalkStepsRequired(steps: Int) {
+        val clamped = steps.coerceIn(PuzzleSettings.MIN_WALK_STEPS, PuzzleSettings.MAX_WALK_STEPS)
+        dataStore.edit { it[Keys.WALK_STEPS_REQUIRED] = clamped }
     }
 }
