@@ -27,6 +27,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,8 @@ import com.brainspresso.core.puzzle.PuzzleSettings
 import com.brainspresso.core.puzzle.PuzzleType
 
 private const val WALK_STEPS_INCREMENT = 5
+private const val PRIVACY_POLICY_URL = "https://ajaychandar.github.io/brainspresso/privacy-policy.html"
+private const val TERMS_URL = "https://ajaychandar.github.io/brainspresso/terms.html"
 
 private fun PuzzleType.displayName() = when (this) {
     PuzzleType.MATH -> "Math"
@@ -65,6 +69,7 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
 
     val activityRecognitionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -257,8 +262,12 @@ fun SettingsScreen(
                     "alarms or any damages arising from its use.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp, bottom = 12.dp),
+                modifier = Modifier.padding(top = 8.dp),
             )
+            Row(modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)) {
+                TextButton(onClick = { uriHandler.openUri(PRIVACY_POLICY_URL) }) { Text("Privacy policy") }
+                TextButton(onClick = { uriHandler.openUri(TERMS_URL) }) { Text("Terms of use") }
+            }
         }
     }
 }

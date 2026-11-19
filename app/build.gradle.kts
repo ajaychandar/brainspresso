@@ -30,10 +30,27 @@ android {
         }
     }
 
+    // Release key comes from a gitignored keystore.properties (see keystore.properties.example).
+    // Without it the release build is simply unsigned, so CI and fresh clones still work.
+    val keystoreProps = java.util.Properties().apply {
+        val file = rootProject.file("keystore.properties")
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
+    val hasReleaseKey = keystoreProps.getProperty("storeFile") != null
+    if (hasReleaseKey) {
+        signingConfigs.create("release") {
+            storeFile = file(keystoreProps.getProperty("storeFile"))
+            storePassword = keystoreProps.getProperty("storePassword")
+            keyAlias = keystoreProps.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (hasReleaseKey) signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
