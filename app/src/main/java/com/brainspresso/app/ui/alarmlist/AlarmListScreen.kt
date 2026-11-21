@@ -72,6 +72,25 @@ fun AlarmListScreen(
     onOpenSettings: () -> Unit,
 ) {
     val alarms by viewModel.alarms.collectAsState()
+    AlarmListContent(
+        alarms = alarms,
+        onAddAlarm = onAddAlarm,
+        onEditAlarm = onEditAlarm,
+        onOpenSettings = onOpenSettings,
+        onToggle = viewModel::setEnabled,
+        onDelete = viewModel::delete,
+    )
+}
+
+@Composable
+fun AlarmListContent(
+    alarms: List<AlarmEntity>,
+    onAddAlarm: () -> Unit,
+    onEditAlarm: (Long) -> Unit,
+    onOpenSettings: () -> Unit,
+    onToggle: (AlarmEntity, Boolean) -> Unit,
+    onDelete: (AlarmEntity) -> Unit,
+) {
     val now by produceState(initialValue = ZonedDateTime.now()) {
         while (true) {
             delay(30_000)
@@ -124,9 +143,9 @@ fun AlarmListScreen(
                 items(alarms, key = { it.id }) { alarm ->
                     AlarmCard(
                         alarm = alarm,
-                        onToggle = { enabled -> viewModel.setEnabled(alarm, enabled) },
+                        onToggle = { enabled -> onToggle(alarm, enabled) },
                         onClick = { onEditAlarm(alarm.id) },
-                        onDelete = { viewModel.delete(alarm) },
+                        onDelete = { onDelete(alarm) },
                     )
                 }
             }

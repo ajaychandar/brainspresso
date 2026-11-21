@@ -15,8 +15,8 @@ android {
         applicationId = "com.brainspresso.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -84,6 +84,10 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            // Screenshot rendering only runs when explicitly requested (CI's screenshot step).
+            all { test ->
+                if (System.getenv("CAPTURE_SCREENSHOTS") != "1") test.exclude("**/screenshots/**")
+            }
         }
     }
 }
@@ -123,6 +127,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.room.testing)
     testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(platform(libs.androidx.compose.bom))
 
     androidTestImplementation(platform(libs.androidx.compose.bom))

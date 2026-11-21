@@ -61,6 +61,26 @@ jobs:
             --title "Latest debug build" \
             --notes "Debug build from commit ${{ github.sha }}. Tap brainspresso-debug.apk below to download and install."
 
+      - name: Capture screenshots
+        continue-on-error: true
+        env:
+          CAPTURE_SCREENSHOTS: "1"
+        run: ./gradlew :app:testDebugUnitTest --tests "*ScreenshotTest" --stacktrace
+
+      - name: Commit screenshots
+        if: github.event_name == 'push'
+        continue-on-error: true
+        run: |
+          if ls app/build/screenshots/*.png >/dev/null 2>&1; then
+            mkdir -p docs/screenshots
+            cp app/build/screenshots/*.png docs/screenshots/
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/screenshots
+            git commit -m "Update screenshots [skip ci]" || exit 0
+            git push origin HEAD:${{ github.ref_name }}
+          fi
+
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4

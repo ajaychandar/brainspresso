@@ -10,7 +10,13 @@ import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.brainspresso.app.ui.splash.SplashScreen
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,13 +71,28 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             BrainspressoTheme {
-                ExactAlarmPermissionGate(
-                    canScheduleExactAlarms = { alarmScheduler.canScheduleExactAlarms() },
-                    onOpenSettings = ::openExactAlarmSettings,
-                )
-                BrainspressoNavHost()
+                var showSplash by rememberSaveable { mutableStateOf(true) }
+                LaunchedEffect(Unit) {
+                    delay(SPLASH_DURATION_MS)
+                    showSplash = false
+                }
+                Crossfade(targetState = showSplash, animationSpec = tween(400), label = "splash") { splash ->
+                    if (splash) {
+                        SplashScreen()
+                    } else {
+                        ExactAlarmPermissionGate(
+                            canScheduleExactAlarms = { alarmScheduler.canScheduleExactAlarms() },
+                            onOpenSettings = ::openExactAlarmSettings,
+                        )
+                        BrainspressoNavHost()
+                    }
+                }
             }
         }
+    }
+
+    private companion object {
+        const val SPLASH_DURATION_MS = 1_800L
     }
 
     private fun requestNotificationPermissionIfNeeded() {

@@ -102,7 +102,6 @@ fun SettingsScreen(
 ) {
     val settings by viewModel.settings.collectAsState()
     val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
 
     val activityRecognitionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -126,6 +125,29 @@ fun SettingsScreen(
             activityRecognitionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
         }
     }
+
+    SettingsContent(
+        settings = settings,
+        onBack = onBack,
+        onToggleType = viewModel::toggleType,
+        onSetDifficulty = viewModel::setDifficulty,
+        onSetRequiredStreak = viewModel::setRequiredStreak,
+        onToggleRequireWalk = ::onToggleRequireWalk,
+        onSetWalkStepsRequired = viewModel::setWalkStepsRequired,
+    )
+}
+
+@Composable
+fun SettingsContent(
+    settings: PuzzleSettings,
+    onBack: () -> Unit,
+    onToggleType: (PuzzleType) -> Unit,
+    onSetDifficulty: (Difficulty) -> Unit,
+    onSetRequiredStreak: (Int) -> Unit,
+    onToggleRequireWalk: (Boolean) -> Unit,
+    onSetWalkStepsRequired: (Int) -> Unit,
+) {
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -204,7 +226,7 @@ fun SettingsScreen(
                             .background(MaterialTheme.colorScheme.surfaceContainerLow)
                             .selectable(
                                 selected = selected,
-                                onClick = { viewModel.toggleType(type) },
+                                onClick = { onToggleType(type) },
                                 role = Role.Checkbox,
                             )
                             .padding(12.dp),
@@ -258,7 +280,7 @@ fun SettingsScreen(
                                 .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent)
                                 .selectable(
                                     selected = selected,
-                                    onClick = { viewModel.setDifficulty(difficulty) },
+                                    onClick = { onSetDifficulty(difficulty) },
                                     role = Role.RadioButton,
                                 )
                                 .padding(vertical = 10.dp),
@@ -279,8 +301,8 @@ fun SettingsScreen(
                     subtitle = "Must be solved consecutively",
                     valueLabel = if (settings.requiredStreak == 1) "1 puzzle" else "${settings.requiredStreak} puzzles",
                     tint = MaterialTheme.colorScheme.primary,
-                    onMinus = { viewModel.setRequiredStreak(settings.requiredStreak - 1) },
-                    onPlus = { viewModel.setRequiredStreak(settings.requiredStreak + 1) },
+                    onMinus = { onSetRequiredStreak(settings.requiredStreak - 1) },
+                    onPlus = { onSetRequiredStreak(settings.requiredStreak + 1) },
                     minusEnabled = settings.requiredStreak > PuzzleSettings.MIN_STREAK,
                     plusEnabled = settings.requiredStreak < PuzzleSettings.MAX_STREAK,
                 )
@@ -313,7 +335,7 @@ fun SettingsScreen(
                     }
                     BrainspressoSwitch(
                         checked = settings.requireWalkToStop,
-                        onCheckedChange = ::onToggleRequireWalk,
+                        onCheckedChange = onToggleRequireWalk,
                     )
                 }
                 StepperRow(
@@ -321,8 +343,8 @@ fun SettingsScreen(
                     subtitle = "Range ${PuzzleSettings.MIN_WALK_STEPS} to ${PuzzleSettings.MAX_WALK_STEPS}",
                     valueLabel = "${settings.walkStepsRequired} steps",
                     tint = MaterialTheme.colorScheme.secondary,
-                    onMinus = { viewModel.setWalkStepsRequired(settings.walkStepsRequired - WALK_STEPS_INCREMENT) },
-                    onPlus = { viewModel.setWalkStepsRequired(settings.walkStepsRequired + WALK_STEPS_INCREMENT) },
+                    onMinus = { onSetWalkStepsRequired(settings.walkStepsRequired - WALK_STEPS_INCREMENT) },
+                    onPlus = { onSetWalkStepsRequired(settings.walkStepsRequired + WALK_STEPS_INCREMENT) },
                     minusEnabled = settings.requireWalkToStop && settings.walkStepsRequired > PuzzleSettings.MIN_WALK_STEPS,
                     plusEnabled = settings.requireWalkToStop && settings.walkStepsRequired < PuzzleSettings.MAX_WALK_STEPS,
                     modifier = Modifier.alpha(if (settings.requireWalkToStop) 1f else 0.4f),
