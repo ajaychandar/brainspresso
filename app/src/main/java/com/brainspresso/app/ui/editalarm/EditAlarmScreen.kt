@@ -6,12 +6,11 @@ import android.media.RingtoneManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +22,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -52,6 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
+import com.brainspresso.app.ui.common.BrainspressoSwitch
 import com.brainspresso.app.ui.common.formatAlarmTime
 import java.time.DayOfWeek
 
@@ -116,7 +116,8 @@ fun EditAlarmScreen(
         ) {
             Text(
                 text = formatAlarmTime(state.hour, state.minute),
-                style = MaterialTheme.typography.displaySmall,
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -171,9 +172,7 @@ fun EditAlarmScreen(
                     }
                     ringtoneLauncher.launch(intent)
                 },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                border = BorderStroke(2.dp, MaterialTheme.colorScheme.outline),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -203,16 +202,20 @@ fun EditAlarmScreen(
                     Icon(Icons.Filled.Vibration, contentDescription = null)
                     Text("Vibrate", modifier = Modifier.padding(start = 12.dp))
                 }
-                Switch(checked = state.vibrate, onCheckedChange = viewModel::setVibrate)
+                BrainspressoSwitch(checked = state.vibrate, onCheckedChange = viewModel::setVibrate)
             }
 
             Button(
                 onClick = viewModel::save,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(2.dp, MaterialTheme.colorScheme.outline, MaterialTheme.shapes.small),
+                    .height(56.dp),
             ) {
-                Text("Save alarm", fontWeight = FontWeight.Bold)
+                Text("Save alarm", style = MaterialTheme.typography.headlineSmall)
             }
         }
     }

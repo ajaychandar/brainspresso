@@ -11,6 +11,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AlarmOn
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
+import com.brainspresso.app.ui.theme.DialogSurface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -100,19 +125,85 @@ private fun ExactAlarmPermissionGate(
     if (!granted && !dismissedThisSession) {
         AlertDialog(
             onDismissRequest = { dismissedThisSession = true },
-            title = { Text("Allow exact alarms") },
-            text = {
+            containerColor = DialogSurface,
+            shape = RoundedCornerShape(28.dp),
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        Icons.Filled.AlarmOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(32.dp),
+                    )
+                }
+            },
+            title = {
                 Text(
-                    "Brainspresso needs the \"Alarms & reminders\" permission to ring at the " +
-                        "exact time you set. Without it, your alarms may silently never go off.",
+                    text = "Allow exact alarms",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Android needs the \"Alarms & reminders\" permission so Brainspresso can " +
+                            "ring at the exact time you set.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    PermissionOutcomeRow(
+                        icon = Icons.Filled.Close,
+                        tint = MaterialTheme.colorScheme.error,
+                        title = "Without it",
+                        body = "Alarms may be delayed or may never go off.",
+                    )
+                    PermissionOutcomeRow(
+                        icon = Icons.Filled.Check,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        title = "With it",
+                        body = "Alarms ring at the exact time you set.",
+                    )
+                }
+            },
             confirmButton = {
-                TextButton(onClick = onOpenSettings) { Text("Open settings") }
+                Button(
+                    onClick = onOpenSettings,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                ) { Text("Allow exact alarms", style = MaterialTheme.typography.labelLarge) }
             },
             dismissButton = {
-                TextButton(onClick = { dismissedThisSession = true }) { Text("Not now") }
+                TextButton(onClick = { dismissedThisSession = true }) {
+                    Text("Not now", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             },
         )
+    }
+}
+
+@Composable
+private fun PermissionOutcomeRow(icon: ImageVector, tint: Color, title: String, body: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(12.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+        Column(modifier = Modifier.padding(start = 10.dp)) {
+            Text(title, style = MaterialTheme.typography.labelMedium, color = tint)
+            Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface)
+        }
     }
 }

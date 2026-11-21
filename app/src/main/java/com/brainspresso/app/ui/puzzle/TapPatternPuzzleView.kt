@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import com.brainspresso.core.puzzle.TapPatternPuzzle
 import kotlinx.coroutines.delay
@@ -48,26 +48,26 @@ fun TapPatternPuzzleView(
     }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
+        PuzzleStatusBar(
             text = when (phase) {
                 TapPhase.MEMORIZE -> "Memorize the highlighted cells"
                 TapPhase.RECALL -> "Tap the cells you memorized"
             },
-            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.height(20.dp))
 
         // Sized as a fraction of available width (capped so it doesn't grow huge on tablets)
         // rather than a fixed per-cell dp, so HARD difficulty's 5x5 grid never overflows a
-        // narrow phone screen the way gridSize * 64.dp could.
+        // narrow phone screen.
         LazyVerticalGrid(
             columns = GridCells.Fixed(puzzle.gridSize),
             modifier = Modifier
-                .fillMaxWidth(0.85f)
+                .fillMaxWidth()
                 .widthIn(max = 340.dp)
                 .aspectRatio(1f),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
+            userScrollEnabled = false,
         ) {
             items(puzzle.cellCount) { cell ->
                 val showHighlight = phase == TapPhase.MEMORIZE && cell in puzzle.pattern
@@ -96,11 +96,14 @@ private fun GridCellView(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    val color = if (highlighted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
+    val glow = MaterialTheme.colorScheme.primaryContainer
+    val color = if (highlighted) glow else MaterialTheme.colorScheme.surfaceContainerHighest
+    val shape = RoundedCornerShape(16.dp)
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(10.dp))
+            .shadow(elevation = if (highlighted) 10.dp else 0.dp, shape = shape, ambientColor = glow, spotColor = glow)
+            .clip(shape)
             .background(color)
             .clickable(enabled = enabled, onClick = onClick),
     )
