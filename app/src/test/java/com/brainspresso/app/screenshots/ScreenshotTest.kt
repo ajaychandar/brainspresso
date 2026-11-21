@@ -46,7 +46,6 @@ class ScreenshotTest {
     }
 
     private fun capture(name: String, advanceMillis: Long = 3_000, content: @Composable () -> Unit) {
-        rule.mainClock.autoAdvance = false
         rule.setContent { BrainspressoTheme { content() } }
         rule.mainClock.advanceTimeBy(advanceMillis)
         val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
@@ -89,29 +88,29 @@ class ScreenshotTest {
                 required = 3,
                 justFailed = true,
             ),
-            onSolved = {}, onFailed = {},
+            onSolved = {}, onFailed = {}, animateIndicators = false,
         )
     }
 
     @Test
-    fun memoryPuzzle() = capture("04-ringing-memory", advanceMillis = 1_300) {
+    fun memoryPuzzle() = capture("04-ringing-memory") {
         PuzzleScreen(
             state = PuzzleUiState(
                 puzzle = MemorySequencePuzzle(sequence = listOf(0, 3, 1, 4, 2), padSize = 6),
                 alarmLabel = "Morning jolt", solvedCount = 0, required = 2,
             ),
-            onSolved = {}, onFailed = {},
+            onSolved = {}, onFailed = {}, animateIndicators = false,
         )
     }
 
     @Test
-    fun tapPatternPuzzle() = capture("05-ringing-pattern", advanceMillis = 1_000) {
+    fun tapPatternPuzzle() = capture("05-ringing-pattern") {
         PuzzleScreen(
             state = PuzzleUiState(
                 puzzle = TapPatternPuzzle(gridSize = 4, pattern = setOf(0, 5, 6, 11, 13)),
                 solvedCount = 1, required = 3,
             ),
-            onSolved = {}, onFailed = {},
+            onSolved = {}, onFailed = {}, animateIndicators = false,
         )
     }
 
@@ -122,7 +121,7 @@ class ScreenshotTest {
             state = PuzzleUiState(
                 solvedCount = 3, required = 3, isWalking = true, stepsWalked = 7, stepsRequired = 15,
             ),
-            onSolved = {}, onFailed = {},
+            onSolved = {}, onFailed = {}, animateIndicators = false,
         )
     }
 

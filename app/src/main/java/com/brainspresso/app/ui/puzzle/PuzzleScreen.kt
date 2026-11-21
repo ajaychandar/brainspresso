@@ -63,6 +63,7 @@ fun PuzzleScreen(
     state: PuzzleUiState,
     onSolved: () -> Unit,
     onFailed: () -> Unit,
+    animateIndicators: Boolean = true,
 ) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +88,7 @@ fun PuzzleScreen(
                 if (state.isWalking) {
                     WalkContent(stepsWalked = state.stepsWalked, stepsRequired = state.stepsRequired)
                 } else {
-                    PuzzleContent(state = state, onSolved = onSolved, onFailed = onFailed)
+                    PuzzleContent(state = state, onSolved = onSolved, onFailed = onFailed, animateIndicators = animateIndicators)
                 }
             }
         }
@@ -99,14 +100,19 @@ private fun PuzzleContent(
     state: PuzzleUiState,
     onSolved: () -> Unit,
     onFailed: () -> Unit,
+    animateIndicators: Boolean,
 ) {
     val pulse = rememberInfiniteTransition(label = "alarm-pulse")
-    val dotAlpha by pulse.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(tween(700, easing = LinearEasing), RepeatMode.Reverse),
-        label = "alarm-dot",
-    )
+    val dotAlpha = if (animateIndicators) {
+        pulse.animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(tween(700, easing = LinearEasing), RepeatMode.Reverse),
+            label = "alarm-dot",
+        ).value
+    } else {
+        1f
+    }
 
     Row(
         modifier = Modifier
