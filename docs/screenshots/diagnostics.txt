@@ -1,0 +1,7 @@
+05-ringing-pattern: 1236x2745, distinct sampled colors=9
+01-splash: 1236x2745, distinct sampled colors=73
+02-alarm-list: 1236x2745, distinct sampled colors=12
+04-ringing-memory: 1236x2745, distinct sampled colors=9
+06-walk-to-stop: 1236x3000, distinct sampled colors=15
+03-ringing-math: 1236x2745, distinct sampled colors=12
+07-settings: 1236x5700, distinct sampled colors=15
