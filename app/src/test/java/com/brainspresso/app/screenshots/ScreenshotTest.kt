@@ -2,10 +2,9 @@ package com.brainspresso.app.screenshots
 
 import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onRoot
+import android.graphics.Canvas
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import com.brainspresso.app.data.db.AlarmEntity
 import com.brainspresso.app.ui.alarmlist.AlarmListContent
 import com.brainspresso.app.ui.puzzle.PuzzleScreen
@@ -38,7 +37,7 @@ import org.robolectric.annotation.GraphicsMode
 class ScreenshotTest {
 
     @get:Rule
-    val rule = createComposeRule()
+    val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Before
     fun onlyWhenRequested() {
@@ -46,11 +45,25 @@ class ScreenshotTest {
     }
 
     private fun capture(name: String, advanceMillis: Long = 3_000, content: @Composable () -> Unit) {
-        rule.setContent { BrainspressoTheme { content() } }
-        rule.mainClock.advanceTimeBy(advanceMillis)
-        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
         val dir = File("build/screenshots").apply { mkdirs() }
-        File(dir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        try {
+            rule.setContent { BrainspressoTheme { content() } }
+            rule.mainClock.advanceTimeBy(advanceMillis)
+            rule.waitForIdle()
+            // Draw the window ourselves: compose-ui-test's captureToImage waits on a callback
+            // that Robolectric never delivers, so it times out.
+            val view = rule.activity.window.decorView
+            val bitmap = Bitmap.createBitmap(
+                view.width.coerceAtLeast(1), view.height.coerceAtLeast(1), Bitmap.Config.ARGB_8888,
+            )
+            rule.runOnUiThread { view.draw(Canvas(bitmap)) }
+            File(dir, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+            val distinct = (0 until 200).map { bitmap.getPixel((it * 7) % bitmap.width, (it * 13) % bitmap.height) }.toSet().size
+            File(dir, "diagnostics.txt").appendText("$name: ${bitmap.width}x${bitmap.height}, distinct sampled colors=$distinct\n")
+        } catch (t: Throwable) {
+            File(dir, "diagnostics.txt").appendText("$name FAILED: ${t::class.java.name}: ${t.message}\n${t.stackTrace.take(12).joinToString("\n")}\n")
+            throw t
+        }
     }
 
     private val weekdays = setOf(
